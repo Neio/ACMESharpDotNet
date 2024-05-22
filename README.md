@@ -1,8 +1,7 @@
 # ACMESharp Core <img align="right" width="100" src="https://raw.githubusercontent.com/Neio/ACMESharpCore/master/docs/acmesharp-logo-color.png">
 
-An ACME client library for .NET Standard (Let's Encrypt)
+An ACME client library for .NET
 
-:star: I appreciate your star, it helps me decide to which OSS projects I should allocate my spare time.
 
 ![CI](https://github.com/Neio/ACMESharpCore/workflows/CI/badge.svg)
 
@@ -31,7 +30,7 @@ An ACME client library for .NET Standard (Let's Encrypt)
 
 ## Overview
 
-This library originated as a port of the [ACMESharp](https://github.com/ebekker/ACMESharp) client library from .NET Framework to .NET Standard 2.0.
+This library originated as a port of the [ACMESharp](https://github.com/ebekker/ACMESharp) client library from .NET Framework to .NET Muti-targets
 
 However, this rewrite is now actually more complete than the [original](https://github.com/ebekker/ACMESharp),
 including operations from the ACME specification that were left out of the original and supporting the latest

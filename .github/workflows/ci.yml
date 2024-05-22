@@ -196,7 +196,7 @@ jobs:
     - name: Test - Integration Tests
       id: integration_tests
       if: ${{ !cancelled() && steps.unit_tests.outcome == 'success' && steps.simplepki_unit_tests.outcome == 'success' && steps.mockserver_unit_tests.outcome == 'success' }}
-      uses: zyborg/dotnet-tests-report@v0
+      uses: zyborg/dotnet-tests-report@v1
       with:
         project_path: ./test/ACMESharp.IntegrationTests
         no_restore: true

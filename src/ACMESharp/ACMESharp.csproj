@@ -11,8 +11,8 @@
    -    https://docs.microsoft.com/en-us/nuget/reference/msbuild-targets
    -->
   <PropertyGroup>
-      <PackageId>ACMESharpCore</PackageId>
-      <Description>ACME v2 protocol client library for .NET Standard</Description>
+      <PackageId>ACMESharpDotNet</PackageId>
+      <Description>ACME v2 protocol client library for .NET</Description>
       <Copyright>Copyright (C) Eugene Bekker.</Copyright>
       <PackageLicenseUrl>https://github.com/Neio/ACMESharpCore/blob/master/LICENSE</PackageLicenseUrl>
       <PackageProjectUrl>https://github.com/Neio/ACMESharpCore/</PackageProjectUrl>
