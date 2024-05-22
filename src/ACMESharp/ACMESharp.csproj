@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net472;net6.0;net8.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
@@ -14,21 +14,23 @@
       <PackageId>ACMESharpCore</PackageId>
       <Description>ACME v2 protocol client library for .NET Standard</Description>
       <Copyright>Copyright (C) Eugene Bekker.</Copyright>
-      <PackageLicenseUrl>https://github.com/PKISharp/ACMESharpCore/blob/master/LICENSE</PackageLicenseUrl>
-      <PackageProjectUrl>https://github.com/PKISharp/ACMESharpCore/</PackageProjectUrl>
-      <PackageIconUrl>https://raw.githubusercontent.com/PKISharp/ACMESharpCore/master/docs/acmesharp-logo-color.png</PackageIconUrl>
+      <PackageLicenseUrl>https://github.com/Neio/ACMESharpCore/blob/master/LICENSE</PackageLicenseUrl>
+      <PackageProjectUrl>https://github.com/Neio/ACMESharpCore/</PackageProjectUrl>
+      <PackageIconUrl>https://raw.githubusercontent.com/Neio/ACMESharpCore/master/docs/acmesharp-logo-color.png</PackageIconUrl>
       <PackageTags>pki;ssl;tls;security;certificates;letsencrypt;acme;acmesharp</PackageTags>
-      <RepositoryUrl>https://github.com/PKISharp/ACMESharpCore.git</RepositoryUrl>
+      <RepositoryUrl>https://github.com/Neio/ACMESharpCore.git</RepositoryUrl>
       <RepositoryType>git</RepositoryType>
-      <Authors>https://github.com/PKISharp/ACMESharpCore/graphs/contributors</Authors>
+      <Authors>https://github.com/Neio/ACMESharpCore/graphs/contributors</Authors>
   </PropertyGroup>
 
   <Import Project="../../version.props" />
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.2" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
-    <PackageReference Include="Newtonsoft.json" Version="11.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.json" Version="13.0.3" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 
 </Project>

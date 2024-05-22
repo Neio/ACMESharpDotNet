@@ -771,7 +771,7 @@ namespace ACMESharp.Protocol
                 else
                     payload = ComputeAcmeSigned(message, uri.ToString(),
                             includePublicKey: includePublicKey);
-                requ.Content = new StringContent(payload);
+                requ.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/jose+json");
                 requ.Content.Headers.ContentType = Constants.JsonContentTypeHeaderValue;
             }
 

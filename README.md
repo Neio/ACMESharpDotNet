@@ -1,14 +1,14 @@
-# ACMESharp Core <img align="right" width="100" src="https://raw.githubusercontent.com/PKISharp/ACMESharpCore/master/docs/acmesharp-logo-color.png">
+# ACMESharp Core <img align="right" width="100" src="https://raw.githubusercontent.com/Neio/ACMESharpCore/master/docs/acmesharp-logo-color.png">
 
 An ACME client library for .NET Standard (Let's Encrypt)
 
 :star: I appreciate your star, it helps me decide to which OSS projects I should allocate my spare time.
 
-![CI](https://github.com/PKISharp/ACMESharpCore/workflows/CI/badge.svg)
+![CI](https://github.com/Neio/ACMESharpCore/workflows/CI/badge.svg)
 
 <!--
-[![AV Build status](https://ci.appveyor.com/api/projects/status/bvf3hiyantc3m8tv?svg=true)](https://ci.appveyor.com/project/ebekker/acmesharpcore)
-[![ADO Build Status](https://dev.azure.com/PKISharp/ACMESharpCore/_apis/build/status/ACMESharpCore-ASP.NET%20Core%20(.NET%20Framework)-CI?branchName=master)](https://dev.azure.com/PKISharp/ACMESharpCore/_build/latest?definitionId=2&branchName=master)
+[![AV Build status](https://ci.appveyor.com/api/projects/status/v3ch5gu85i05ehd9?svg=true)](https://ci.appveyor.com/project/Neio/acmesharpcore)
+
 -->
 
 ## Tests
@@ -37,7 +37,7 @@ However, this rewrite is now actually more complete than the [original](https://
 including operations from the ACME specification that were left out of the original and supporting the latest
 versions of the specification.  Check out the [library-specific README](/src/ACMESharp) for details as they develop.
 
-A couple of useful examples have been [put together](https://github.com/PKISharp/ACMESharpCore/tree/master/src/examples) to demonstrate how to use the client library to implement a [CLI tool](https://github.com/PKISharp/ACMESharpCore/tree/master/src/examples/ACMECLI) and automated certificate installation for [ASP.NET Core](https://github.com/PKISharp/ACMESharpCore/tree/master/src/examples/ACMEKestrel) applications.  More are coming...
+A couple of useful examples have been [put together](https://github.com/Neio/ACMESharpCore/tree/master/src/examples) to demonstrate how to use the client library to implement a [CLI tool](https://github.com/Neio/ACMESharpCore/tree/master/src/examples/ACMECLI) and automated certificate installation for [ASP.NET Core](https://github.com/Neio/ACMESharpCore/tree/master/src/examples/ACMEKestrel) applications.  More are coming...
 
 ----
 

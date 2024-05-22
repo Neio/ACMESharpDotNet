@@ -1,4 +1,4 @@
-# README - `PKISharp.SimplePKI` <img align="right" width="100" src="https://raw.githubusercontent.com/PKISharp/ACMESharpCore/master/docs/pkisharp-logo-color.png">
+# README - `PKISharp.SimplePKI` <img align="right" width="100" src="https://raw.githubusercontent.com/Neio/ACMESharpCore/master/docs/pkisharp-logo-color.png">
 
 The purpose of this support library is to provide a small, targeted
 API that implements the specific operations that are typically needed on the
@@ -13,7 +13,7 @@ client side when working with certificates and certificate requests.
 This library originated out of a need to handle various client-side operations
 in support of the ACMESharp client.
 
-In order to use the [ACMESharp](https://github.com/PKISharp/ACMESharpCore) library
+In order to use the [ACMESharp](https://github.com/Neio/ACMESharpCore) library
 to properly interact with an ACME CA in producing signed certificates it is necessary to
 perform various PKI certificate management operations on the client side such as selecting
 and generating key pairs for supported asymmetric encryption algorithms, generating a
