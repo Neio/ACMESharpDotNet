@@ -200,11 +200,16 @@ namespace ACMESharp.Protocol
             bool throwOnExistingAccount = false,
             CancellationToken cancel = default(CancellationToken))
         {
+            JwsSignedPayload externalAccountBindingPayload = null;
+            if (externalAccountBinding is ExternalAccountBindingInfo eabi)
+            {
+                externalAccountBindingPayload = eabi.ToPayload(this.Signer, this.Directory);
+            }
             var message = new CreateAccountRequest
             {
                 Contact = contacts,
                 TermsOfServiceAgreed = termsOfServiceAgreed,
-                ExternalAccountBinding = externalAccountBinding,
+                ExternalAccountBinding = externalAccountBindingPayload,
             };
             var resp = await SendAcmeAsync(
                     new Uri(_http.BaseAddress, Directory.NewAccount),
@@ -283,10 +288,16 @@ namespace ACMESharp.Protocol
             CancellationToken cancel = default(CancellationToken))
         {
             var requUrl = new Uri(_http.BaseAddress, Account.Kid);
+
+            JwsSignedPayload externalAccountBindingPayload = null;
+            if (externalAccountBinding is ExternalAccountBindingInfo eabi)
+            {
+                externalAccountBindingPayload = eabi.ToPayload(this.Signer, this.Directory);
+            }
             var message = new UpdateAccountRequest
             {
                 Contact = contacts,
-                ExternalAccountBinding = externalAccountBinding,
+                ExternalAccountBinding = externalAccountBindingPayload,
             };
             var resp = await SendAcmeAsync(
                     requUrl,

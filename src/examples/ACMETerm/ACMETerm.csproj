@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>LATEST</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Terminal.Gui" Version="0.*" />
+    <PackageReference Include="Terminal.Gui" Version="1.*" />
   </ItemGroup>
 
   <ItemGroup>

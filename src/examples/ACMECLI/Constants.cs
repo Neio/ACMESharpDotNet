@@ -6,16 +6,19 @@ namespace ACMECLI
     public static class Constants
     {
         public const string LetsEncryptName = "LetsEncrypt";
+        public const string ZeroSsl = "ZeroSsl";
         public const string LetsEncryptStagingName = "LetsEncryptStaging";
 
-        public const string LetsEncryptV2StagingEndpoint = "https://acme-staging-v02.api.letsencrypt.org/";
-        public const string LetsEncryptV2Endpoint = "https://acme-v02.api.letsencrypt.org/";
+        public const string LetsEncryptV2StagingEndpoint = "https://acme-staging-v02.api.letsencrypt.org/directory";
+        public const string LetsEncryptV2Endpoint = "https://acme-v02.api.letsencrypt.org/directory";
+        public const string ZeroSslEndpoint = "https://acme.zerossl.com/v2/DV90";
 
         public static readonly IReadOnlyDictionary<string, string> NameUrlMap =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 [LetsEncryptName] = LetsEncryptV2Endpoint,
                 [LetsEncryptStagingName] = LetsEncryptV2StagingEndpoint,
+                [ZeroSsl] = ZeroSslEndpoint,
             };
         
         public const string Dns01ChallengeType = "dns-01";

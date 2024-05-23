@@ -24,7 +24,7 @@ An ACME client library for .NET
 | Component | Stable Release | Early Access |
 |-|-|-|
 | | Hosted on the [NuGet Gallery](https://www.nuget.org/packages?q=Tags%3A%22acmesharp%22) | Hosted on [MyGet Gallery](https://www.myget.org/gallery/acmesharp)
-| ACMESharpCore client library | [![NuGet](https://img.shields.io/nuget/v/ACMESharpCore.svg)](https://www.nuget.org/packages/ACMESharpCore) | [![MyGet](https://img.shields.io/myget/acmesharp/vpre/ACMESharpCore.svg)](https://www.myget.org/feed/acmesharp/package/nuget/ACMESharpCore)
+| ACMESharpDotNet client library | [![NuGet](https://img.shields.io/nuget/v/ACMESharpCore.svg)](https://www.nuget.org/packages/ACMESharpCore) | [![MyGet](https://img.shields.io/myget/acmesharp/vpre/ACMESharpCore.svg)](https://www.myget.org/feed/acmesharp/package/nuget/ACMESharpCore)
 | Crypto Support library | [![NuGet](https://img.shields.io/nuget/v/ACMESharpCore.Crypto.svg)](https://www.nuget.org/packages/ACMESharpCore.Crypto) | [![MyGet](https://img.shields.io/myget/acmesharp/vpre/ACMESharpCore.Crypto.svg)](https://www.myget.org/feed/acmesharp/package/nuget/ACMESharpCore.Crypto)
 | SimplePKI library | [![NuGet](https://img.shields.io/nuget/v/PKISharp.SimplePKI.svg)](https://www.nuget.org/packages/PKISharp.SimplePKI) | [![MyGet](https://img.shields.io/myget/acmesharp/vpre/PKISharp.SimplePKI.svg)](https://www.myget.org/feed/acmesharp/package/nuget/PKISharp.SimplePKI)
 

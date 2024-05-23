@@ -8,7 +8,7 @@ namespace ACMESharp.Protocol.Resources
         [JsonExtensionData]
         private IDictionary<string, object> _extra;
 
-        public string Directory { get; set; } = "directory";
+        public string Directory { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string NewNonce { get; set; } //! = "acme/new-nonce";

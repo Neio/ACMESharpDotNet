@@ -1,7 +1,7 @@
 # README - ACMECLI
 
 This project provides an example .NET Core console application that demonstrates one approach
-to using the ACMESharpCore client library for obtaining PKI certificates from the Let's Encrypt
+to using the ACMESharpDotNet client library for obtaining PKI certificates from the Let's Encrypt
 CA.
 
 ***This is only a simple example* -- it is not a thorough or necessarily complete application**,

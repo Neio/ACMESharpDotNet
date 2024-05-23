@@ -30,6 +30,7 @@ namespace ACMECLI
         [AllowedValues(
             Constants.LetsEncryptName,
             Constants.LetsEncryptStagingName,
+            Constants.ZeroSsl,
             IgnoreCase = true
         )]
         public string CaName { get; } = Constants.LetsEncryptName;
@@ -116,6 +117,15 @@ namespace ACMECLI
 
         [Option(ShortName = "", Description = "Includes the private key to the PFX (PKCS12) and secures with specified password (use ' ' for no password)")]
         public string ExportPfxPassword { get; }
+
+
+        [Option(ShortName = "", Description = "External Account Binding Key ID")]
+        public string EabKid {get;}
+
+
+        [Option(ShortName = "", Description = "External Account Binding HMAC KEY")]
+        public string EabHmac {get;}
+
 
 
         private string _statePath;
@@ -210,7 +220,26 @@ namespace ACMECLI
                 if ((Email?.Count() ?? 0) == 0)
                     throw new Exception("At least one email must be specified as a contact for new account");
 
-                account = await _acme.CreateAccountAsync(Email.Select(x => "mailto:" + x), AcceptTos);
+                ExternalAccountBindingInfo eabInfo = null;
+                if (string.IsNullOrEmpty(EabKid) && string.IsNullOrEmpty(EabHmac))
+                {
+                    Console.WriteLine("No External Account Binding information provided");
+                }
+                else if (string.IsNullOrEmpty(EabKid) || string.IsNullOrEmpty(EabHmac))
+                {
+                    throw new Exception("Both External Account Binding Key ID and HMAC KEY must be provided");
+                }
+                else
+                {
+                    eabInfo = new ExternalAccountBindingInfo
+                    {
+                        Kid = EabKid,
+                        Hmac = EabHmac,
+                    };
+                    Console.WriteLine("External Account Binding information provided");
+                }
+
+                account = await _acme.CreateAccountAsync(Email.Select(x => "mailto:" + x), AcceptTos, eabInfo);
                 accountSigner = _acme.Signer;
                 accountKey = new ExamplesAccountKey
                 {
@@ -238,7 +267,7 @@ namespace ACMECLI
             Console.WriteLine($"  Key Export Hash....: {accountKeyHash}");
             Console.WriteLine();
 
-            if (Dns?.Count() == 0)
+            if (Dns == null || Dns.Count() == 0)
                 // No DNS names means we can only handle the
                 // Account and no request to create an Order
                 return;

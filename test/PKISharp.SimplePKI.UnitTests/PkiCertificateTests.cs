@@ -1,10 +1,24 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace PKISharp.SimplePKI.UnitTests
 {
+    static class TestExtension
+    {
+        public static System.Security.Cryptography.AsymmetricAlgorithm GetPrivateKey(this X509Certificate2 cert, PkiAsymmetricAlgorithm algor)
+        {
+            return algor switch
+            {
+                PkiAsymmetricAlgorithm.Rsa => cert.GetRSAPrivateKey(),
+                PkiAsymmetricAlgorithm.Ecdsa => cert.GetECDsaPrivateKey(),
+                _ => throw new NotSupportedException(),
+            };
+        }
+    }
+
     [TestClass]
     public class PkiCertificateTests
     {
@@ -50,7 +64,7 @@ namespace PKISharp.SimplePKI.UnitTests
                     "Subject Name on BCL Certificate");
 
             Assert.IsFalse(bclCert.HasPrivateKey);
-            Assert.IsNull(bclCert.PrivateKey);
+            Assert.IsNull(bclCert.GetPrivateKey(algor));
 
             File.WriteAllBytes(pemOut, cert.Export(PkiEncodingFormat.Pem));
             File.WriteAllBytes(derOut, cert.Export(PkiEncodingFormat.Der));
@@ -156,7 +170,7 @@ namespace PKISharp.SimplePKI.UnitTests
                     "Subject Name on BCL Certificate");
 
             Assert.IsFalse(bclCert.HasPrivateKey);
-            Assert.IsNull(bclCert.PrivateKey);
+            Assert.IsNull(bclCert.GetPrivateKey(algor));
 
             File.WriteAllBytes(pfxSansKey, cert.Export(PkiArchiveFormat.Pkcs12));
             File.WriteAllBytes(pfxWithKey, cert.Export(PkiArchiveFormat.Pkcs12,
@@ -176,12 +190,12 @@ namespace PKISharp.SimplePKI.UnitTests
 
             var certSansKey = new System.Security.Cryptography.X509Certificates.X509Certificate2(File.ReadAllBytes(pfxSansKey));
             Assert.IsFalse(certSansKey.HasPrivateKey);
-            Assert.IsNull(certSansKey.PrivateKey);
+            Assert.IsNull(certSansKey.GetPrivateKey(algor));
             var certWithKey = new System.Security.Cryptography.X509Certificates.X509Certificate2(File.ReadAllBytes(pfxWithKey));
             Assert.IsTrue(certWithKey.HasPrivateKey);
             if (algor != PkiAsymmetricAlgorithm.Ecdsa)
                 // This throws: System.NotSupportedException: The certificate key algorithm is not supported.
-                Assert.IsNotNull(certWithKey.PrivateKey);
+                Assert.IsNotNull(certWithKey.GetPrivateKey(algor));
         }
 
         [TestMethod]
@@ -242,12 +256,12 @@ namespace PKISharp.SimplePKI.UnitTests
 
             var certSansKey = new System.Security.Cryptography.X509Certificates.X509Certificate2(File.ReadAllBytes(pfxSansKey));
             Assert.IsFalse(certSansKey.HasPrivateKey);
-            Assert.IsNull(certSansKey.PrivateKey);
+            Assert.IsNull(certSansKey.GetPrivateKey(algor));
             var certWithKey = new System.Security.Cryptography.X509Certificates.X509Certificate2(File.ReadAllBytes(pfxWithKey));
             Assert.IsTrue(certWithKey.HasPrivateKey);
             if (algor != PkiAsymmetricAlgorithm.Ecdsa)
                 // This throws: System.NotSupportedException: The certificate key algorithm is not supported.
-                Assert.IsNotNull(certWithKey.PrivateKey);
+                Assert.IsNotNull(certWithKey.GetPrivateKey(algor));
         }
 
         [TestMethod]
@@ -282,7 +296,7 @@ namespace PKISharp.SimplePKI.UnitTests
                     "Subject Name on BCL Certificate");
 
             Assert.IsFalse(bclCert.HasPrivateKey);
-            Assert.IsNull(bclCert.PrivateKey);
+            Assert.IsNull(bclCert.GetPrivateKey(algor));
 
             File.WriteAllBytes(pemSansKey, cert.Export(PkiArchiveFormat.Pem));
             File.WriteAllBytes(pemWithKey, cert.Export(PkiArchiveFormat.Pem,
@@ -314,7 +328,7 @@ namespace PKISharp.SimplePKI.UnitTests
 
             var certSansKey = new System.Security.Cryptography.X509Certificates.X509Certificate2(File.ReadAllBytes(pemSansKey));
             Assert.IsFalse(certSansKey.HasPrivateKey);
-            Assert.IsNull(certSansKey.PrivateKey);
+            Assert.IsNull(certSansKey.GetPrivateKey(algor));
         }
  
         [TestMethod]

@@ -21,16 +21,25 @@ namespace ACMETerm
         public const string LetsEncryptV2Endpoint = "https://acme-v02.api.letsencrypt.org/";
 
         private HttpClient _http = new HttpClient();
-        private string _contacts = "";
+        private string _contacts = "mailto:foo@bar.com";
         private bool _agreeTos = true;
-        private string _dnsNames = "";
+        private string _dnsNames = "example.com";
 
         static async Task Main(string[] args)
         { 
-            var p = new Program();
+            if (args.Length > 0 && args.Contains("--gui"))
+            {
+                ProgramX.MainX(args);
+            }
+            else
+            {
+                var p = new Program();
             
-            await p.GetTermsOfService();
-            await p.CreateAccount();
+                await p.GetTermsOfService();
+                await p.CreateAccount();
+
+            }
+           
         }
 
         async Task GetTermsOfService()
@@ -110,6 +119,7 @@ namespace ACMETerm
             // WriteLine("Sig2Hex: " + BitConverter.ToString(sig2));
 
             var lineSeps = "\r\n".ToCharArray();
+            AccountDetails acct = null;
 
             using (var acme = new AcmeProtocolClient(_http, signer: signer))
             {
@@ -123,7 +133,7 @@ namespace ACMETerm
                 await acme.GetNonceAsync();
 
                 var c = _contacts.Split(lineSeps, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                var acct = await acme.CreateAccountAsync(c, _agreeTos);
+                acct = await acme.CreateAccountAsync(c, _agreeTos);
                 var acctStr = JsonConvert.SerializeObject(acct, Formatting.Indented);
 
                 Console.WriteLine("Got Account: " + acctStr);
@@ -139,6 +149,7 @@ namespace ACMETerm
 
                 var dir = await acme.GetDirectoryAsync();
                 acme.Directory = dir;
+                acme.Account = acct;
 
                 await acme.GetNonceAsync();
 
@@ -155,7 +166,7 @@ namespace ACMETerm
     {
         static Label _cwd;
 
-        static void MainX(string[] args)
+        public static void MainX(string[] args)
         {
             Application.Init();
 
@@ -189,7 +200,7 @@ namespace ACMETerm
                     new Label(3, 4, "Password: "),
                     new TextField(14, 4, 40, "") { Secret = true },
                     new CheckBox(3, 6, "Remember me"),
-                    new RadioGroup(3, 8, new[] { "_Personal", "_Company" }),
+                    new RadioGroup(3, 8, new NStack.ustring[] { "_Personal", "_Company" }, 0),
                     new Button(3, 14, "Ok"),
                     new Button(10, 14, "Cancel"),
                     new Label(3, 18, "Press ESC and 9 to activate the menubar"),

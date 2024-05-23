@@ -17,7 +17,7 @@ namespace ACMESharp.UnitTests
                 using (var rsa = new System.Security.Cryptography.RSACryptoServiceProvider())
                 {
                     rsa.ImportParameters(JwsTests.GetRsaParamsForRfc7515Example_A_2_1());
-                    using (var sha256 = new System.Security.Cryptography.SHA256CryptoServiceProvider())
+                    using (var sha256 = System.Security.Cryptography.SHA256.Create())
                     {
                         return rsa.SignData(x, sha256);
                     }
