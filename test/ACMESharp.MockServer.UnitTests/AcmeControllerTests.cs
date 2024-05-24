@@ -22,7 +22,6 @@ namespace ACMESharp.MockServer.UnitTests
         private static readonly char S = Path.DirectorySeparatorChar;
 
         // When using the ASP.NET Core TestHost, only the URL Path is significant
-        public const string DefaultServerUrl = "http://localhost/";
         public static readonly string DataFolder = $@".{S}_IGNORE{S}data";
         public static readonly string RepoFilePath = DataFolder + $@"{S}acme-mockserver.db";
 
@@ -481,6 +480,7 @@ namespace ACMESharp.MockServer.UnitTests
 
             using (var http = _server.CreateClient())
             {
+                http.BaseAddress = new Uri("http://localhost/directory");
                 using (var acme = new AcmeProtocolClient(http))
                 {
                     var dir = await acme.GetDirectoryAsync();
