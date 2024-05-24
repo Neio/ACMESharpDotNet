@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACMESharp", "..\ACMESharp\ACMESharp.csproj", "{2D582638-6E48-424B-B93C-9B68C29C9A61}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Examples.Common.PKI", "Examples.Common.PKI\Examples.Common.PKI.csproj", "{CBC5C933-18B5-4396-B799-D3F1C0E0CBD1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACMESharp.DotNetCore", "..\ACMESharp.DotNetCore\ACMESharp.DotNetCore.csproj", "{74AA1103-03CB-4F6F-AFF0-D27DF75A684C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACMEWeb", "ACMEWeb\ACMEWeb.csproj", "{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -125,6 +127,18 @@ Global
 		{74AA1103-03CB-4F6F-AFF0-D27DF75A684C}.Release|x64.Build.0 = Release|Any CPU
 		{74AA1103-03CB-4F6F-AFF0-D27DF75A684C}.Release|x86.ActiveCfg = Release|Any CPU
 		{74AA1103-03CB-4F6F-AFF0-D27DF75A684C}.Release|x86.Build.0 = Release|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Debug|x64.Build.0 = Debug|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Debug|x86.Build.0 = Debug|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Release|x64.ActiveCfg = Release|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Release|x64.Build.0 = Release|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Release|x86.ActiveCfg = Release|Any CPU
+		{7674C4D8-694E-4653-9ADC-DC3444FFE4C5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
