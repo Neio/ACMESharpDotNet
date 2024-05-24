@@ -174,12 +174,19 @@ namespace ACMESharp.IntegrationTests
             }
         }
 
+        protected async Task EditTxtRecord(string dnsName, IEnumerable<string> dnsValues, bool delete = false)
+        {
+            await Aws.R53.EditTxtRecord(dnsName, dnsValues, delete);
+            SaveObject("r53-working", true);
+        }
+
         protected async Task<bool> ValidateDnsTxtRecord(string name,
                 string targetValue = null,
                 bool targetMissing = false,
                 int maxTry = 20,
                 int trySleep = 10 * 1000)
         {
+            Assert.True(LoadObject<bool>("r53-working"));
             for (var tryCount = 0; tryCount < maxTry; ++tryCount)
             {
                 if (tryCount > 0)
