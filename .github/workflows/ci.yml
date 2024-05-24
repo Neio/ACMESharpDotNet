@@ -143,7 +143,7 @@ jobs:
     - name: Test - Unit Tests
       id: unit_tests
       if: ${{ !cancelled() && steps.prep_tests.outcome == 'success' }}
-      uses: zyborg/dotnet-tests-report@v0
+      uses: zyborg/dotnet-tests-report@v1
       with:
         project_path: ./test/ACMESharp.UnitTests
         no_restore: true
@@ -157,7 +157,7 @@ jobs:
     - name: Test - SimplePKI Unit Tests
       id: simplepki_unit_tests
       if: ${{ !cancelled() && steps.prep_tests.outcome == 'success' }}
-      uses: zyborg/dotnet-tests-report@v0
+      uses: zyborg/dotnet-tests-report@v1
       with:
         project_path: ./test/PKISharp.SimplePKI.UnitTests
         no_restore: true
@@ -171,7 +171,7 @@ jobs:
     - name: Test - MockServer Unit Tests
       id: mockserver_unit_tests
       if: ${{ !cancelled() && steps.prep_tests.outcome == 'success' }}
-      uses: zyborg/dotnet-tests-report@v0
+      uses: zyborg/dotnet-tests-report@v1
       with:
         project_path: ./test/ACMESharp.MockServer.UnitTests
         no_restore: true
