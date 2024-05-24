@@ -592,7 +592,7 @@ namespace ACMECLI
                             privateKey: privateKey,
                             password: pfxPassword?.ToCharArray());
 
-                        await File.WriteAllBytesAsync(ExportPfx, pfx);
+                        File.WriteAllBytes(ExportPfx, pfx);
                     }
                 }
             }

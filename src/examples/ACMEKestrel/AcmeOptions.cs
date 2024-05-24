@@ -7,9 +7,8 @@ namespace ACMEKestrel
 {
     public class AcmeOptions
     {
-        public const string LetsEncryptV2StagingEndpoint = "https://acme-staging-v02.api.letsencrypt.org/";
-
-        public const string LetsEncryptV2Endpoint = "https://acme-v02.api.letsencrypt.org/";
+        public const string ZeroSslEndpoint = "https://acme.zerossl.com/v2/DV90";
+        public const string LetsEncryptV2Endpoint = "https://acme-v02.api.letsencrypt.org/directory";
 
         public const int DefaultRsaKeySize = 2048;
         public const int DefaultEcKeySize = 256;
@@ -42,5 +41,9 @@ namespace ACMEKestrel
         public int WaitForAuthorizations { get; set; } = 60;
 
         public int WaitForCertificate { get; set; } = 60; 
+
+        public string EabKid {get;set;}
+
+        public string EabHmacKey {get;set;}
     }
 }

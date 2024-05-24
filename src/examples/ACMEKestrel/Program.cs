@@ -27,7 +27,7 @@ namespace ACMEKestrel
 
         public static void Main(string[] args)
         {
-            var dnsNamesFile = ".\\_IGNORE\\dnsnames.json";
+            var dnsNamesFile = "./_IGNORE/dnsnames.json";
             if (File.Exists(dnsNamesFile))
                 DnsNames = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(
                         File.ReadAllText(dnsNamesFile));
@@ -58,7 +58,6 @@ namespace ACMEKestrel
                     });
 
             builder.UseStartup<Startup>();
-
             return builder;
         }
     }

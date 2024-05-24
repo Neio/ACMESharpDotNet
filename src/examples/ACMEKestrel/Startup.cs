@@ -31,7 +31,6 @@ namespace ACMEKestrel
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
@@ -59,8 +58,7 @@ namespace ACMEKestrel
             app.UseAcmeChallengeHandler();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
-            app.UseMvc();
+            
         }
     }
 }

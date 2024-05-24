@@ -115,7 +115,7 @@ namespace ACMEKestrel
             }
 
             var acmeUrl = new Uri(_options.CaUrl);
-            using (var acme = new AcmeProtocolClient(acmeUrl))
+            using (var acme = new AcmeProtocolClient(acmeUrl, usePostAsGet: true))
             {
                 _state.ServiceDirectory = await acme.GetDirectoryAsync();
                 Save(_state.ServiceDirectoryFile, _state.ServiceDirectory);
@@ -149,10 +149,24 @@ namespace ACMEKestrel
             if (_state.Account == null || _state.AccountKey == null)
             {
                 var contacts = _options.AccountContactEmails.Select(x => $"mailto:{x}");
+
+                //Eab
+                ExternalAccountBindingInfo eabInfo = null;
+                if (_options.EabKid != null && _options.EabHmacKey != null)
+                {
+                    _logger.LogInformation("Creating ACME Account with External Account Binding");
+                    eabInfo = new ExternalAccountBindingInfo
+                    {
+                        Kid = _options.EabKid,
+                        Hmac = _options.EabHmacKey
+                    };
+                }
+
                 _logger.LogInformation("Creating ACME Account");
                 _state.Account = await acme.CreateAccountAsync(
                         contacts: contacts,
-                        termsOfServiceAgreed: _options.AcceptTermsOfService);
+                        termsOfServiceAgreed: _options.AcceptTermsOfService,
+                        externalAccountBinding: eabInfo);
                 _state.AccountKey = new ExamplesAccountKey
                 {
                     KeyType = acme.Signer.JwsAlg,
@@ -350,7 +364,7 @@ namespace ACMEKestrel
             _state.Order = await acme.GetOrderDetailsAsync(_state.Order.OrderUrl, _state.Order);
             Save(_state.OrderFile, _state.Order);
 
-            if (AcmeState.PendingStatus == _state.Order.Payload.Status)
+            if (AcmeState.PendingStatus == _state.Order.Payload.Status || "ready" == _state.Order.Payload.Status)
             {
                 _logger.LogInformation("Generating CSR");
                 byte[] csr;
