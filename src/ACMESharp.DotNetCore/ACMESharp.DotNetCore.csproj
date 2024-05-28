@@ -14,13 +14,13 @@
       <PackageId>ACMESharpDotNet.Crypto</PackageId>
       <Description>ACMESharp support library for .NET Core</Description>
       <Copyright>Copyright (C) Eugene Bekker.</Copyright>
-      <PackageLicenseUrl>https://github.com/Neio/ACMESharpCore/blob/master/LICENSE</PackageLicenseUrl>
-      <PackageProjectUrl>https://github.com/Neio/ACMESharpCore/</PackageProjectUrl>
+      <PackageLicenseUrl>https://github.com/Neio/ACMESharpDotNet/blob/master/LICENSE</PackageLicenseUrl>
+      <PackageProjectUrl>https://github.com/Neio/ACMESharpDotNet/</PackageProjectUrl>
       <PackageIconUrl>https://raw.githubusercontent.com/Neio/ACMESharpCore/master/docs/acmesharp-logo-color.png</PackageIconUrl>
       <PackageTags>pki;ssl;tls;security;certificates;letsencrypt;acme;acmesharp</PackageTags>
-      <RepositoryUrl>https://github.com/Neio/ACMESharpCore.git</RepositoryUrl>
+      <RepositoryUrl>https://github.com/Neio/ACMESharpDotNet.git</RepositoryUrl>
       <RepositoryType>git</RepositoryType>
-      <Authors>https://github.com/Neio/ACMESharpCore/graphs/contributors</Authors>
+      <Authors>https://github.com/Neio/ACMESharpDotNet/graphs/contributors</Authors>
   </PropertyGroup>
 
   <Import Project="../../version.props" />

@@ -13,7 +13,7 @@ client side when working with certificates and certificate requests.
 This library originated out of a need to handle various client-side operations
 in support of the ACMESharp client.
 
-In order to use the [ACMESharp](https://github.com/Neio/ACMESharpCore) library
+In order to use the [ACMESharp](https://github.com/Neio/ACMESharpDotNet) library
 to properly interact with an ACME CA in producing signed certificates it is necessary to
 perform various PKI certificate management operations on the client side such as selecting
 and generating key pairs for supported asymmetric encryption algorithms, generating a
