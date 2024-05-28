@@ -12,6 +12,7 @@ using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
 using BclCertificate = System.Security.Cryptography.X509Certificates.X509Certificate2;
 
+
 namespace PKISharp.SimplePKI
 {
     public class PkiCertificate
@@ -93,7 +94,9 @@ namespace PKISharp.SimplePKI
 
                 case PkiArchiveFormat.Pkcs12:
                     var alias = AliasOf(this);
-                    var store = new Pkcs12StoreBuilder().Build();
+                    var store = new Pkcs12StoreBuilder()
+                        .SetKeyAlgorithm(Org.BouncyCastle.Asn1.Nist.NistObjectIdentifiers.IdAes128Cbc, Org.BouncyCastle.Asn1.Pkcs.PkcsObjectIdentifiers.IdHmacWithSha1)
+                        .SetCertAlgorithm(Org.BouncyCastle.Asn1.Pkcs.PkcsObjectIdentifiers.PbeWithShaAnd3KeyTripleDesCbc).Build();
                     if (privateKey != null)
                         store.SetKeyEntry(alias, new AsymmetricKeyEntry(privateKey.NativeKey),
                                 new[] { new X509CertificateEntry(NativeCertificate) });

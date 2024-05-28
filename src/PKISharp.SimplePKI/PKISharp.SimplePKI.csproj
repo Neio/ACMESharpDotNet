@@ -24,14 +24,14 @@
   <PropertyGroup>
     <BuildNumber Condition="'$(BuildNumber)' == ''">$(APPVEYOR_BUILD_NUMBER)</BuildNumber>
     <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
-    <VersionPrefix>2.2.0.$(BuildNumber)</VersionPrefix>
+    <VersionPrefix>2.3.0.$(BuildNumber)</VersionPrefix>
     <!--
     <VersionSuffix>beta1</VersionSuffix>
     -->
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.2" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
   </ItemGroup>
 
 </Project>

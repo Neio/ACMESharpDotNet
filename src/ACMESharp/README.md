@@ -41,11 +41,11 @@
 * Cross-platform support
   * Tested on [Windows](https://ci.appveyor.com/project/ebekker/acmesharpcore/build/job/6vive79j4xprmh93/tests)
   * Tested on [Linux](https://ci.appveyor.com/project/ebekker/acmesharpcore/build/job/1a528ap82uol4bsg/tests) (Ubuntu 16.04)
-
+* External Account Binding from [ACME 7.3.4](https://datatracker.ietf.org/doc/html/rfc8555#section-7.3.4)
+  
 ## What's Not Implemented/Not Working
 
 * Automatic detection/handling of Change of TOS from [ACME 7.3.4](https://tools.ietf.org/html/draft-ietf-acme-acme-12#section-7.3.4) is not implemented
-* External Account Binding from [ACME 7.3.5](https://tools.ietf.org/html/draft-ietf-acme-acme-12#section-7.3.5) has not been implemented
 * Order Pre-Authorizations from [ACME 7.4.1](https://tools.ietf.org/html/draft-ietf-acme-acme-12#section-7.4.1) is not implemented
 
 ## Contributors

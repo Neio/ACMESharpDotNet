@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System;
 
 namespace PKISharp.SimplePKI.UnitTests
 {
@@ -15,6 +16,7 @@ namespace PKISharp.SimplePKI.UnitTests
             }
             else
             {
+                Console.WriteLine("openssl " + arguments);
                 return Process.Start("openssl", arguments);
             }
         }       
