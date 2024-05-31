@@ -153,7 +153,9 @@ namespace ACMESharp.Enrollment
             else
             {
                 _logger.LogInformation("Refreshing Order status");
-                state.OrderDetails = await state.Client.GetOrderDetailsAsync(state.OrderDetails.OrderUrl, state.OrderDetails, cancel: state.CancellationToken);
+                var newDetails = await state.Client.GetOrderDetailsAsync(state.OrderDetails.OrderUrl, state.OrderDetails, cancel: state.CancellationToken);
+                newDetails.OrderUrl = state.OrderDetails.OrderUrl;
+                state.OrderDetails = newDetails;
             }
 
             return true;
@@ -249,6 +251,7 @@ namespace ACMESharp.Enrollment
             var order = state.OrderDetails;
             var csrBytes = state.Csr.GenerateCertificateRequest("CN=" + state.DnsNames.First(), state.DnsNames);
             var finalizedOrder = await state.Client.FinalizeOrderAsync(order.Payload.Finalize, csrBytes, state.CancellationToken);
+            finalizedOrder.OrderUrl = state.OrderDetails.OrderUrl;
             state.OrderDetails = finalizedOrder;
 
             return true;
