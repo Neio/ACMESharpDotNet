@@ -53,7 +53,7 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
       #run: dotnet build --configuration Release
-
+   
     - name: Prepare for Tests
       id: prep_tests
       env:
@@ -110,13 +110,13 @@ jobs:
     ## result of any preceding test as long as
     - name: Test (ACMESharp)
       if: ${{ !cancelled() }}
-      run: dotnet test --verbosity normal --logger "trx;LogFileName=ACMESharp.trx" --results-directory coverage ./test/ACMESharp.UnitTests
+      run: dotnet test --verbosity normal --logger "trx;LogFileName=ACMESharp-${{ matrix.os }}.trx" --results-directory coverage ./test/ACMESharp.UnitTests
     - name: Test (SimplePKI)
       if: ${{ !cancelled()  }}
-      run: dotnet test --verbosity normal --logger "trx;LogFileName=SimplePKI.trx" --results-directory coverage ./test/PKISharp.SimplePKI.UnitTests
+      run: dotnet test --verbosity normal --logger "trx;LogFileName=SimplePKI-${{ matrix.os }}.trx" --results-directory coverage ./test/PKISharp.SimplePKI.UnitTests
     - name: Test (MockServer)
       if: ${{ !cancelled()  }}
-      run: dotnet test --verbosity normal --logger "trx;LogFileName=MockServer.trx" --results-directory coverage ./test/ACMESharp.MockServer.UnitTests
+      run: dotnet test --verbosity normal --logger "trx;LogFileName=MockServer-${{ matrix.os }}.trx" --results-directory coverage ./test/ACMESharp.MockServer.UnitTests
     - uses: actions/upload-artifact@v4  # upload test results
       if: success() || failure()        # run this step even if previous step failed
       with:
@@ -130,7 +130,7 @@ jobs:
         name: Test Results            # Name of the check run which will be created
         path: "*.trx"    # Path to test results
         reporter: dotnet-trx       # Format of test results
-  
+
     #- name: Test - Unit Tests
     #  id: unitTests
     #  if: ${{ !cancelled() }}
