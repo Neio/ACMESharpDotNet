@@ -407,6 +407,7 @@ namespace ACMESharp.MockServer.Controllers
         }
 
         [HttpGet("cert/{certKey}")]
+        [HttpPost("cert/{certKey}")]
         public ActionResult<string> GetCertificate(string certKey)
         {
             var dbCert = _repo.GetCertificateByKey(certKey);
@@ -655,7 +656,7 @@ namespace ACMESharp.MockServer.Controllers
                 throw new Exception("invalid JWS header, missing 'url'");
             if (string.IsNullOrEmpty(ph.Nonce))
                 throw new Exception("invalid JWS header, missing 'nonce'");
-            
+
             IJwsTool tool = null;
             switch (ph.Alg)
             {
@@ -673,12 +674,15 @@ namespace ACMESharp.MockServer.Controllers
                     break;
                 case "ES256":
                     tool = new ESJwsTool { HashSize = 256 };
+                    ((ESJwsTool)tool).ImportJwk(acct.Jwk);
                     break;
                 case "ES384":
                     tool = new ESJwsTool { HashSize = 384 };
+                    ((ESJwsTool)tool).ImportJwk(acct.Jwk);
                     break;
                 case "ES512":
                     tool = new ESJwsTool { HashSize = 512 };
+                    ((ESJwsTool)tool).ImportJwk(acct.Jwk);
                     break;
                 default:
                     throw new Exception("unknown or unsupported signature algorithm");

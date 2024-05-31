@@ -93,6 +93,17 @@ namespace ACMESharp.Crypto.JOSE.Impl
             _dsa.ImportParameters(ecParams);
 
         }
+        
+        public void ImportJwk(string jwkJson)
+        {
+            Init();
+            var jwk = JsonConvert.DeserializeObject<ESJwk>(jwkJson);
+
+            var ecParams = _dsa.ExportParameters(true);
+            ecParams.Q.X = CryptoHelper.Base64.UrlDecode(jwk.x);
+            ecParams.Q.Y = CryptoHelper.Base64.UrlDecode(jwk.y);
+            _dsa.ImportParameters(ecParams);
+        }
 
         public object ExportJwk(bool canonical = false)
         {
