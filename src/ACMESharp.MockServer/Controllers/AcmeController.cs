@@ -407,7 +407,6 @@ namespace ACMESharp.MockServer.Controllers
         }
 
         [HttpGet("cert/{certKey}")]
-        [HttpPost("cert/{certKey}")]
         public ActionResult<string> GetCertificate(string certKey)
         {
             var dbCert = _repo.GetCertificateByKey(certKey);
@@ -415,6 +414,25 @@ namespace ACMESharp.MockServer.Controllers
                 return NotFound();
             
             return dbCert.Pem;
+        }
+
+
+        [HttpPost("cert/{certKey}")]
+        public ActionResult<string> GetCertificatePost(string certKey, [FromBody]JwsSignedPayload signedPayload)
+        {
+            var ph = ExtractProtectedHeader(signedPayload);
+            ValidateNonce(ph);
+            var acct = _repo.GetAccountByKid(ph.Kid);
+            if (acct == null)
+                throw new Exception("could not resolve account");
+            ValidateAccount(acct, signedPayload);
+            var requ = ExtractPayload<string>(signedPayload);
+            if (requ != null)
+            {
+                return NotFound();
+            }
+            GenerateNonce();
+            return GetCertificate(certKey);
         }
 
         // "revoke-cert": "https://tools.ietf.org/html/draft-ietf-acme-acme-18#section-7.6"
