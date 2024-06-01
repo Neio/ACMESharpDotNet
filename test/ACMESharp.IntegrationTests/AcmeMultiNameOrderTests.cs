@@ -22,8 +22,8 @@ namespace ACMESharp.IntegrationTests
     public class AcmeMultiNameOrderTests : AcmeOrderTests
     {
         public AcmeMultiNameOrderTests(ITestOutputHelper output,
-                StateFixture state, ClientsFixture clients, AwsFixture aws)
-            : base(output, state, clients, aws,
+                StateFixture state, ClientsFixture clients, AcmeServerFixure acmeServer)
+            : base(output, state, clients, acmeServer,
                     state.Factory.CreateLogger(typeof(AcmeMultiNameOrderTests).FullName))
         { }
 
@@ -126,7 +126,7 @@ namespace ACMESharp.IntegrationTests
 
                     Log.LogInformation("Creating DNS for Authorization {0} Challenge {1} as per {@Details}",
                             authzIndex, chlngIndex, chlngDetails);
-                    await Aws.R53.EditTxtRecord(
+                    await AcmeServer.DNS.EditTxtRecord(
                             chlngDetails.DnsRecordName,
                             new[] { chlngDetails.DnsRecordValue });
 
@@ -361,7 +361,7 @@ namespace ACMESharp.IntegrationTests
 
                     Log.LogInformation("Deleting DNS for Authorization {0} Challenge {1} as per {@Details}",
                             authzIndex, chlngIndex, chlngDetails);
-                    await Aws.R53.EditTxtRecord(
+                    await AcmeServer.DNS.EditTxtRecord(
                             chlngDetails.DnsRecordName,
                             new[] { chlngDetails.DnsRecordValue },
                             delete: true);

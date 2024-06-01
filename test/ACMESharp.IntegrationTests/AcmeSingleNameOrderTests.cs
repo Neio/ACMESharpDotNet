@@ -17,8 +17,8 @@ namespace ACMESharp.IntegrationTests
     public class AcmeSingleNameOrderWithPostAsGetTests : AcmeOrderWithPostAsGetTests
     {
         public AcmeSingleNameOrderWithPostAsGetTests(ITestOutputHelper output,
-                StateFixture state, ClientsFixture clients, AwsFixture aws)
-            : base(output, state, clients, aws,
+                StateFixture state, ClientsFixture clients, AcmeServerFixure acmeServer)
+            : base(output, state, clients, acmeServer,
                     state.Factory.CreateLogger(typeof(AcmeSingleNameOrderWithPostAsGetTests).FullName))
         { }
     }
@@ -30,8 +30,8 @@ namespace ACMESharp.IntegrationTests
     public class AcmeSingleNameOrderTests : AcmeOrderTests
     {
         public AcmeSingleNameOrderTests(ITestOutputHelper output,
-                StateFixture state, ClientsFixture clients, AwsFixture aws)
-            : base(output, state, clients, aws,
+                StateFixture state, ClientsFixture clients, AcmeServerFixure acmeServer)
+            : base(output, state, clients, acmeServer,
                     state.Factory.CreateLogger(typeof(AcmeSingleNameOrderTests).FullName))
         { }
 
@@ -135,7 +135,7 @@ namespace ACMESharp.IntegrationTests
                     Log.LogInformation("Creating HTTP Content for Authorization {0} Challenge {1} as per {@Details}",
                             authzIndex, chlngIndex, chlngDetails);
 
-                    await Aws.S3.EditFile(
+                    await AcmeServer.Http.EditFile(
                             chlngDetails.HttpResourcePath,
                             chlngDetails.HttpResourceContentType,
                             chlngDetails.HttpResourceValue);
@@ -369,7 +369,7 @@ namespace ACMESharp.IntegrationTests
                     Log.LogInformation("Deleting HTTP content for Authorization {0} Challenge {1} as per {@Details}",
                             authzIndex, chlngIndex, chlngDetails);
 
-                    await Aws.S3.EditFile(
+                    await AcmeServer.Http.EditFile(
                             chlngDetails.HttpResourcePath,
                             null, null);
 

@@ -26,8 +26,8 @@ namespace ACMESharp.IntegrationTests
     public abstract class AcmeOrderWithPostAsGetTests : AcmeOrderTests
     {
         public AcmeOrderWithPostAsGetTests(ITestOutputHelper output,
-                StateFixture state, ClientsFixture clients, AwsFixture aws, ILogger log = null)
-            : base(output, state, clients, aws,
+                StateFixture state, ClientsFixture clients, AcmeServerFixure acmeServer, ILogger log = null)
+            : base(output, state, clients, acmeServer,
                     log ?? state.Factory.CreateLogger(typeof(AcmeOrderWithPostAsGetTests).FullName))
         {
             _usePostAsGet = true;
@@ -40,18 +40,18 @@ namespace ACMESharp.IntegrationTests
     public abstract class AcmeOrderTests : IntegrationTest,
         IClassFixture<StateFixture>,
         IClassFixture<ClientsFixture>,
-        IClassFixture<AwsFixture>
+        IClassFixture<AcmeServerFixure>
     {
         // Our test site (Let's Encrypt Stage)
         // no longer supports any other option
         protected bool _usePostAsGet = true; // false;
 
         public AcmeOrderTests(ITestOutputHelper output,
-                StateFixture state, ClientsFixture clients, AwsFixture aws, ILogger log = null)
+                StateFixture state, ClientsFixture clients, AcmeServerFixure acmeServer, ILogger log = null)
             : base(state, clients)
         {
             Output = output;
-            Aws = aws;
+            AcmeServer = acmeServer;
             Log = log ?? state.Factory.CreateLogger(typeof(AcmeOrderTests).FullName);
         }
 
@@ -59,7 +59,7 @@ namespace ACMESharp.IntegrationTests
         // Will only be displayed if containing test fails.
         protected ITestOutputHelper Output { get; }
 
-        protected AwsFixture Aws { get; }
+        protected AcmeServerFixure AcmeServer { get; }
 
         protected ILogger Log { get; }
 
@@ -78,7 +78,7 @@ namespace ACMESharp.IntegrationTests
         {
             var testCtx = SetTestContext();
 
-            Clients.BaseAddress = new Uri(Constants.LetsEncryptV2StagingEndpoint);
+            Clients.BaseAddress = new Uri(Constants.TestServerEndpopint);
             Clients.Http = new HttpClient()
             {
                 BaseAddress = Clients.BaseAddress,
@@ -176,7 +176,7 @@ namespace ACMESharp.IntegrationTests
 
         protected async Task EditTxtRecord(string dnsName, IEnumerable<string> dnsValues, bool delete = false)
         {
-            await Aws.R53.EditTxtRecord(dnsName, dnsValues, delete);
+            await AcmeServer.DNS.EditTxtRecord(dnsName, dnsValues, delete);
             SaveObject("r53-working", true);
         }
 

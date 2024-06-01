@@ -59,7 +59,7 @@ namespace ACMESharp.IntegrationTests
         [TestOrder(0)]
         public void InitAcmeClient()
         {
-            Clients.BaseAddress = new Uri(Constants.LetsEncryptV2StagingEndpoint);
+            Clients.BaseAddress = new Uri(Constants.TestServerEndpopint);
             Clients.Http = new HttpClient()
             {
                 BaseAddress = Clients.BaseAddress

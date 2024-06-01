@@ -97,6 +97,17 @@ namespace ACMESharp.MockServer.Storage.Impl
         {
             using (var db = new LiteDatabase(DbName))
             {
+                if (acct.Jwk == null)
+                {
+                    var tempOne = db.GetCollection<DbAccount>()
+                        .FindOne(x => x.Jwk == null);
+                    if (tempOne != null)
+                    {
+                        acct.Id = tempOne.Id;
+                    }
+                }
+
+                
                 db.GetCollection<DbAccount>()
                     .Upsert(acct);
             }

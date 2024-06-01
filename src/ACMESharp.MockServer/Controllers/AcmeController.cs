@@ -121,6 +121,25 @@ namespace ACMESharp.MockServer.Controllers
 
             var requ = ExtractPayload<CreateAccountRequest>(signedPayload);
 
+            var existingAccount = _repo.GetAccountByJwk(jwkSer);
+            if (requ.OnlyReturnExisting == true && existingAccount == null)
+            {
+                GenerateNonce();
+                return BadRequest(new
+                {
+                    type = "urn:ietf:params:acme:error:accountDoesNotExist",
+                    detail = "Account does not exist",
+                    instance = ph.Url,
+                });
+            }
+            else if (existingAccount != null)
+            {
+                GenerateNonce();
+                Response.Headers.Add(
+                        "Location",
+                        existingAccount.Details.Kid);
+                return existingAccount.Details.Payload;
+            }
             // We start by saving an empty acct in order to compute the next ID
             var dbAcct = new DbAccount();
             _repo.SaveAccount(dbAcct);
