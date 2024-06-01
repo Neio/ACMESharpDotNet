@@ -20,8 +20,22 @@ jobs:
     - name: Version Output
       run: echo ${{ github.event.release.tag_name }} # Output: 1.1.2
 
+    
+    - name: Signing Key
+      id: write_sign_key_file
+      uses: timheuer/base64-to-file@v1
+      with:
+        fileName: 'Key.snk'
+        encodedString: ${{ secrets.SIGNING_KEY }} 
+
+    - name: Build
+      run: dotnet build --configuration Release
+      env:
+        SignAssembly: true
+        AssemblyOriginatorKeyFile: ${{ steps.write_sign_key_file.outputs.filePath }}
+
     - name: Generate package
-      run: dotnet pack -c Release -o out /p:Version=${{ github.event.release.tag_name }} src/ACMESharp/ACMESharp.csproj
+      run: dotnet pack --no-build -c Release -o out /p:Version=${{ github.event.release.tag_name }} src/ACMESharp/ACMESharp.csproj
     
     - name: Publish
       run: dotnet nuget push ./out/*.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate 

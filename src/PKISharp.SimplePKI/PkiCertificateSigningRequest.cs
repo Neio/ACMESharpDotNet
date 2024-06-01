@@ -313,7 +313,7 @@ namespace PKISharp.SimplePKI
 
             var sigFactory = ComputeSignatureAlgorithm(issuerPrivateKey.NativeKey);
             var certGen = new X509V3CertificateGenerator();
-            certGen.SetSerialNumber(new BigInteger(serialNumber));
+            certGen.SetSerialNumber(new BigInteger(1, serialNumber));
             certGen.SetIssuerDN(issuerName);
             certGen.SetSubjectDN(subjectName);
             certGen.SetNotBefore(notBefore.UtcDateTime);
