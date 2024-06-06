@@ -25,6 +25,9 @@ namespace ACMESharp.Enrollment
         private readonly IChallengeProvider _challengeProvider;
         private readonly ILogger _logger;
 
+        public TimeSpan AuthorizationTimeout { get; set; } = TimeSpan.FromMinutes(30);
+        public TimeSpan FinalizeOrderTimeout { get; set; } = TimeSpan.FromMinutes(5);
+
         public CertificateEnrollment(IStorage storage, IChallengeProvider challengeProvider, ILogger logger)
         {
             _storage = storage;
@@ -188,7 +191,7 @@ namespace ACMESharp.Enrollment
                         throw new InvalidOperationException("Failed to answer challenge");
                     }
 
-                    if (chlng.Status == ChallengeStates.Processing || await _challengeProvider.CompleteChallenge(chlngValidation, state.CancellationToken))
+                    if (await _challengeProvider.CompleteChallenge(chlngValidation, state.CancellationToken))
                     {
                         _logger.LogInformation("Challenge Handler has handled challenge:" +
                             JsonConvert.SerializeObject(chlngValidation, Formatting.None));
@@ -221,16 +224,20 @@ namespace ACMESharp.Enrollment
         {
             var authz = await state.Client.GetAuthorizationDetailsAsync(authUrl, state.CancellationToken);
 
-            int remainRetries = 12;
+            DateTime authTimeout = DateTime.UtcNow.Add(AuthorizationTimeout);
             while (authz.Status == AuthroizationStates.Pending)
             {
-                await Task.Delay(10 * 1000);
-                if (--remainRetries <= 0)
+                await Task.Delay(10 * 1000, state.CancellationToken);
+
+                if (state.CancellationToken.IsCancellationRequested)
+                    throw new TaskCanceledException();
+
+                if (authTimeout < DateTime.UtcNow)
                 {
                     throw new InvalidOperationException("Timeout waiting authorization validation");
                 }
 
-                _logger.LogInformation("Waiting for Authorization to be validated, reamin retires " + remainRetries);
+                _logger.LogInformation("Waiting for Authorization to be validated. Would stop retry at  " + authTimeout);
                 authz = await state.Client.GetAuthorizationDetailsAsync(authUrl, state.CancellationToken);
             }
             if (authz.Status != AuthroizationStates.Valid)
@@ -272,12 +279,15 @@ namespace ACMESharp.Enrollment
                 if (state.OrderDetails.Payload.Status == OrderStates.Invalid)
                     throw new InvalidOperationException("Order is invalid");
 
-                if (DateTime.UtcNow - start > TimeSpan.FromMinutes(5))
+                if (DateTime.UtcNow - start > FinalizeOrderTimeout)
                     throw new InvalidOperationException("Timed out waiting for certificate to be issued");
 
                 _logger.LogInformation("Waiting...");
-                await Task.Delay(5000);
+                await Task.Delay(5000, state.CancellationToken);
 
+
+                if (state.CancellationToken.IsCancellationRequested)
+                    throw new TaskCanceledException();
 
             }
 

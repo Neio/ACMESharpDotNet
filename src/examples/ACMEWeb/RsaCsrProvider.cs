@@ -18,6 +18,8 @@ namespace ACMEWeb
         {
             var certCollection = new X509Certificate2Collection();
             certCollection.Import(certificate, null, X509KeyStorageFlags.Exportable);
+
+            certCollection = new X509Certificate2Collection(certCollection.OrderByDescending(x => x.NotBefore).ToArray());
             certCollection[0] = certCollection[0].CopyWithPrivateKey(_rsa);
             return certCollection;
         }
