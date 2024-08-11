@@ -244,7 +244,7 @@ namespace ACMESharp.Enrollment
 
                 if (authTimeout < DateTime.UtcNow)
                 {
-                    throw new InvalidOperationException("Timeout waiting authorization validation");
+                    throw new TimeoutException("Timeout waiting authorization validation");
                 }
 
                 ProgressUpdate?.Invoke(EnrollmentProgress.PendingAuthorization, "Waiting for Authorization to be validated. Would stop retry at " + authTimeout);
@@ -287,7 +287,7 @@ namespace ACMESharp.Enrollment
                     throw new InvalidOperationException("Order is invalid");
 
                 if (DateTime.UtcNow - start > FinalizeOrderTimeout)
-                    throw new InvalidOperationException("Timed out waiting for certificate to be issued");
+                    throw new TimeoutException("Timed out waiting for certificate to be issued");
 
                 if (!string.IsNullOrEmpty(state.OrderDetails.Payload.Certificate))
                 {
