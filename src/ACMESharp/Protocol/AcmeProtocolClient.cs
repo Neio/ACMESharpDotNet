@@ -678,6 +678,7 @@ namespace ACMESharp.Protocol
         public async Task RevokeCertificateAsync(
             byte[] derEncodedCertificate,
             RevokeReason reason = RevokeReason.Unspecified,
+            IJwsTool certKeyPairSigner = null,
             CancellationToken cancel = default(CancellationToken))
         {
             var message = new RevokeCertificateRequest
@@ -685,12 +686,15 @@ namespace ACMESharp.Protocol
                 Certificate = CryptoHelper.Base64.UrlEncode(derEncodedCertificate),
                 Reason = reason
             };
+
             // If OK is returned, we're all done. Otherwise general 
             // exception handling will kick in
             var resp = await SendAcmeAsync(
                     new Uri(_http.BaseAddress, Directory.RevokeCert),
                     method: HttpMethod.Post,
                     message: message,
+                    includePublicKey: certKeyPairSigner != null,
+                    customSigner: certKeyPairSigner,
                     expectedStatuses: new[] { HttpStatusCode.OK },
                     cancel: cancel);
         }
@@ -752,6 +756,7 @@ namespace ACMESharp.Protocol
         ///         response, defaults to <c>false</c></param>
         /// <param name="skipSigning">If true, will not sign the request with the associated
         ///         Account key, defaults to <c>false</c></param>
+        /// <param name="customSigner">If provided, would be used for signing the payload </param>
         /// <param name="includePublicKey">If true, will include the Account's public key in the
         ///         payload signature instead of the Account's key ID as prescribed with certain
         ///         ACME protocol messages, defaults to <c>false</c></param>
@@ -765,6 +770,7 @@ namespace ACMESharp.Protocol
             HttpStatusCode[] expectedStatuses = null,
             bool skipNonce = false, bool skipSigning = false, bool includePublicKey = false,
             CancellationToken cancel = default(CancellationToken),
+            IJwsTool customSigner = null,
             [System.Runtime.CompilerServices.CallerMemberName]string opName = "")
         {
             if (method == null)
@@ -780,7 +786,7 @@ namespace ACMESharp.Protocol
                 if (skipSigning)
                     payload = ResolvePayload(message);
                 else
-                    payload = ComputeAcmeSigned(message, uri.ToString(),
+                    payload = ComputeAcmeSigned(message, uri.ToString(), signer: customSigner,
                             includePublicKey: includePublicKey);
                 requ.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/jose+json");
                 requ.Content.Headers.ContentType = Constants.JsonContentTypeHeaderValue;
@@ -825,7 +831,7 @@ namespace ACMESharp.Protocol
             return await Deserialize<T>(await SendAcmeAsync(
                     uri, method, message, expectedStatuses,
                     skipNonce, skipSigning, includePublicKey,
-                    cancel, opName));
+                    cancel, null, opName));
         }
 
         async Task<T> Deserialize<T>(HttpResponseMessage resp)

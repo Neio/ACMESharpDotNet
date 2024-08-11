@@ -201,8 +201,10 @@ namespace PKISharp.SimplePKI
             var attr = new AttributeX509(PkcsObjectIdentifiers.Pkcs9AtExtensionRequest,
                     new DerSet(extGen.Generate()));
 
-            var sigFactory = ComputeSignatureAlgorithm(prvKey);
-            var pkcs10 = new Pkcs10CertificationRequest(sigFactory, x509name,
+            var hashAlgorName = HashAlgorithm.ToString().ToUpper();
+            var asymAlgorName = (_keyPair?.Algorithm ?? PublicKey.Algorithm).ToString().ToUpper();
+            var sigAlgor = $"{hashAlgorName}with{asymAlgorName}";
+            var pkcs10 = new Pkcs10CertificationRequest(sigAlgor, x509name,
                     pubKey, new DerSet(attr), prvKey);
 
             switch (format)

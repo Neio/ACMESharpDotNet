@@ -32,8 +32,16 @@ namespace ACMESharp.Crypto.JOSE.Impl
         public string CurveName { get; private set; }
 
         public string JwsAlg => $"ES{HashSize}";
+        private bool _shouldDispose;
 
         public void Init()
+        {
+            InitHash();
+            _shouldDispose = true;
+            _dsa = ECDsa.Create(Curve);
+        }
+
+        private void InitHash()
         {
             switch (HashSize)
             {
@@ -55,14 +63,15 @@ namespace ACMESharp.Crypto.JOSE.Impl
                 default:
                     throw new System.InvalidOperationException("illegal SHA2 hash size");
             }
-
-            _dsa = ECDsa.Create(Curve);
         }
 
         public void Dispose()
         {
-            _dsa?.Dispose();
-            _dsa = null;
+            if (_shouldDispose)
+            {
+                _dsa?.Dispose();
+                _dsa = null;
+            }
         }
 
         public string Export()
@@ -96,13 +105,48 @@ namespace ACMESharp.Crypto.JOSE.Impl
         
         public void ImportJwk(string jwkJson)
         {
-            Init();
-            var jwk = JsonConvert.DeserializeObject<ESJwk>(jwkJson);
+            InitHash();
+            _shouldDispose = true;
 
-            var ecParams = _dsa.ExportParameters(true);
-            ecParams.Q.X = CryptoHelper.Base64.UrlDecode(jwk.x);
-            ecParams.Q.Y = CryptoHelper.Base64.UrlDecode(jwk.y);
-            _dsa.ImportParameters(ecParams);
+            var jwk = JsonConvert.DeserializeObject<ESJwk>(jwkJson);
+            var ecParams = new ECParameters()
+            {
+                Curve = this.Curve,
+                Q = new ECPoint()
+                {
+                     X = CryptoHelper.Base64.UrlDecode(jwk.x),
+                     Y = CryptoHelper.Base64.UrlDecode(jwk.y)
+                }
+            };
+            ecParams.Validate();
+
+            _dsa = ECDsa.Create(ecParams);
+
+        }
+
+
+        internal void Import(ECDsa ecdsa)
+        {
+            if (ecdsa.KeySize == 256)
+            {
+                HashSize = 256;
+            }
+            else if (ecdsa.KeySize == 384)
+            {
+                HashSize = 384;
+            }
+            else if (ecdsa.KeySize == 521)
+            {
+                HashSize = 512;
+            }
+            else
+            {
+                throw new InvalidOperationException("Unsupported curve size");
+            }
+            InitHash();
+            _shouldDispose = false;
+            _dsa = ecdsa;
+            
         }
 
         public object ExportJwk(bool canonical = false)

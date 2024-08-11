@@ -45,8 +45,6 @@ namespace ACMESharp.Enrollment
         {
             var server = AcmeServer;
 
-            if (server == null)
-                throw new InvalidOperationException("Must specify the ACME server or have saved service directory to use");
             var serverShortName = server?.Host.Replace(".", "_");
 
             var directory = _storage.Load<ServiceDirectory>("directory");
@@ -56,6 +54,8 @@ namespace ACMESharp.Enrollment
                 server = new Uri(directory.Directory);
             }
 
+            if (server == null)
+                throw new InvalidOperationException("Must specify the ACME server or have saved service directory to use");
 
             if (dnsNames == null || dnsNames.Length == 0)
                 throw new InvalidOperationException("Must specify at least one DNS name");
@@ -268,7 +268,7 @@ namespace ACMESharp.Enrollment
         {
             _logger.LogInformation("Downloading Certificate");
 
-
+            
             await CreateOrRefreshOrderAsync(state);
             DateTime start = DateTime.UtcNow;
 

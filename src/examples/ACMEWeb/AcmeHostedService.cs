@@ -58,7 +58,8 @@ namespace ACMEWeb
                 }
                 else
                 {
-                    csr = new ECDsaCsrProvider(HashAlgorithmName.SHA256, _acmeOptions.CertificateKeySize ?? AcmeOptions.DefaultEcKeySize);
+                    // ECDSA key size is related to hashing
+                    csr = new ECDsaCsrProvider(HashAlgorithmName.SHA256, 256);
                 }
 
                 var certificates = await _certificateEnrollment.Enroll(_acmeOptions.DnsNames.ToArray(),
@@ -83,6 +84,9 @@ namespace ACMEWeb
                 string privKeyPem = key.ExportPkcs8PrivateKeyPem();
                 _logger.LogInformation("Private key PEM: {0}", privKeyPem);
                 _storage.Save("." + _acmeOptions.DnsNames.First() + ".key", privKeyPem);
+
+                var pkcs12Bytes = certificates.Export(X509ContentType.Pkcs12);
+                _storage.Save("." + _acmeOptions.DnsNames.First() + ".pfx", pkcs12Bytes);
             }
             catch (Exception ex)
             {

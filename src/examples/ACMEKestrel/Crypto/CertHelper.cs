@@ -200,10 +200,8 @@ namespace ACMEKestrel.Crypto
                     PkcsObjectIdentifiers.Pkcs9AtExtensionRequest,
                     new DerSet(x509Ext)));
 
-#pragma warning disable CS0618 // Type or member is obsolete
             var csr = new Pkcs10CertificationRequest(sigAlg,
                     subj, ackp.Public, new DerSet(csrAttrs.ToArray()), ackp.Private);
-#pragma warning restore CS0618 // Type or member is obsolete
 
             return csr.GetDerEncoded();
         }
