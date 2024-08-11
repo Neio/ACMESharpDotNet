@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+
 using ACMESharp.Crypto.JOSE;
 using Newtonsoft.Json;
 

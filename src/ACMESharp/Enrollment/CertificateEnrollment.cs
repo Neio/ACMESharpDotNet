@@ -8,10 +8,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ACMESharp.Authorizations;
+using System.Net.Http;
 using ACMESharp.Crypto.JOSE;
 using ACMESharp.Protocol;
 using ACMESharp.Protocol.Resources;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -23,16 +23,20 @@ namespace ACMESharp.Enrollment
 
         private readonly IStorage _storage;
         private readonly IChallengeProvider _challengeProvider;
-        private readonly ILogger _logger;
 
         public TimeSpan AuthorizationTimeout { get; set; } = TimeSpan.FromMinutes(30);
         public TimeSpan FinalizeOrderTimeout { get; set; } = TimeSpan.FromMinutes(5);
+        public Action<string, object> BeforeAcmeSign { get; set; }
+        public Action<EnrollmentProgress, string> ProgressUpdate { get; set; }
 
-        public CertificateEnrollment(IStorage storage, IChallengeProvider challengeProvider, ILogger logger)
+        public Action<string, HttpRequestMessage> BeforeHttpSend { get; set; }
+
+        public Action<string, HttpResponseMessage> AfterHttpSend { get; set; }
+
+        public CertificateEnrollment(IStorage storage, IChallengeProvider challengeProvider)
         {
             _storage = storage;
             _challengeProvider = challengeProvider;
-            _logger = logger;
         }
 
         public async Task<X509Certificate2Collection> Enroll(string[] dnsNames,
@@ -81,9 +85,12 @@ namespace ACMESharp.Enrollment
 
             using (var client = new AcmeProtocolClient(server,
                 signer: signer,
-                logger: _logger,
                 usePostAsGet: true))
             {
+                client.BeforeAcmeSign = BeforeAcmeSign;
+                client.BeforeHttpSend = BeforeHttpSend;
+                client.AfterHttpSend = AfterHttpSend;
+
                 state.Client = client;
 
                 if (signer == null)
@@ -136,11 +143,13 @@ namespace ACMESharp.Enrollment
                 state.Client.Account = account;
                 state.AccountDetails = account;
 
+                ProgressUpdate?.Invoke(EnrollmentProgress.AccountResolved, account.Kid);
             }
             else
             {
 
                 state.Client.Account = state.AccountDetails;
+                ProgressUpdate?.Invoke(EnrollmentProgress.AccountResolved, state.AccountDetails.Kid);
             }
 
             return true;
@@ -149,16 +158,16 @@ namespace ACMESharp.Enrollment
         {
             if (state.OrderDetails == null)
             {
-                _logger.LogInformation("Creating new Order");
                 var order = await state.Client.CreateOrderAsync(state.DnsNames, cancel: state.CancellationToken);
                 state.OrderDetails = order;
+                ProgressUpdate?.Invoke(EnrollmentProgress.OrderCreated, order.OrderUrl);
             }
             else
             {
-                _logger.LogInformation("Refreshing Order status");
                 var newDetails = await state.Client.GetOrderDetailsAsync(state.OrderDetails.OrderUrl, state.OrderDetails, cancel: state.CancellationToken);
                 newDetails.OrderUrl = state.OrderDetails.OrderUrl;
                 state.OrderDetails = newDetails;
+                ProgressUpdate?.Invoke(EnrollmentProgress.OrderRefreshed, newDetails.OrderUrl);
             }
 
             return true;
@@ -193,7 +202,8 @@ namespace ACMESharp.Enrollment
 
                     if (await _challengeProvider.CompleteChallenge(chlngValidation, state.CancellationToken))
                     {
-                        _logger.LogInformation("Challenge Handler has handled challenge:" +
+                        
+                        ProgressUpdate?.Invoke(EnrollmentProgress.PendingAuthorization, "Challenge Handler has handled challenge:" +
                             JsonConvert.SerializeObject(chlngValidation, Formatting.None));
 
                         validationDetails.Add(chlngValidation);
@@ -237,20 +247,20 @@ namespace ACMESharp.Enrollment
                     throw new InvalidOperationException("Timeout waiting authorization validation");
                 }
 
-                _logger.LogInformation("Waiting for Authorization to be validated. Would stop retry at  " + authTimeout);
+                ProgressUpdate?.Invoke(EnrollmentProgress.PendingAuthorization, "Waiting for Authorization to be validated. Would stop retry at " + authTimeout);
                 authz = await state.Client.GetAuthorizationDetailsAsync(authUrl, state.CancellationToken);
             }
             if (authz.Status != AuthroizationStates.Valid)
             {
-                _logger.LogInformation("Authorization is not valid: " + authz.Status);
+                ProgressUpdate?.Invoke(EnrollmentProgress.AuthorizationFailure, "Authorization is not valid: " + authz.Status);
                 throw new InvalidOperationException("Failed to validate authorization");
             }
+            ProgressUpdate?.Invoke(EnrollmentProgress.AuthorizationComplete, "Authorization is valid: " + authUrl);
         }
         
 
         private async Task<bool> FinalizeOrderAsync(EnrollmentState state)
         {
-            _logger.LogInformation("Finalizing Order");
 
             await CreateOrRefreshOrderAsync(state);
 
@@ -260,19 +270,16 @@ namespace ACMESharp.Enrollment
             var finalizedOrder = await state.Client.FinalizeOrderAsync(order.Payload.Finalize, csrBytes, state.CancellationToken);
             finalizedOrder.OrderUrl = state.OrderDetails.OrderUrl;
             state.OrderDetails = finalizedOrder;
-
+            ProgressUpdate?.Invoke(EnrollmentProgress.OrderFinalized, order.Payload.Finalize);
             return true;
         }
 
         private async Task<X509Certificate2Collection> DownloadCertificate(EnrollmentState state)
         {
-            _logger.LogInformation("Downloading Certificate");
 
-            
-            await CreateOrRefreshOrderAsync(state);
             DateTime start = DateTime.UtcNow;
 
-            while (string.IsNullOrEmpty(state.OrderDetails.Payload.Certificate))
+            while (string.IsNullOrEmpty(state.OrderDetails?.Payload?.Certificate))
             {
                 await CreateOrRefreshOrderAsync(state);
 
@@ -282,7 +289,12 @@ namespace ACMESharp.Enrollment
                 if (DateTime.UtcNow - start > FinalizeOrderTimeout)
                     throw new InvalidOperationException("Timed out waiting for certificate to be issued");
 
-                _logger.LogInformation("Waiting...");
+                if (!string.IsNullOrEmpty(state.OrderDetails.Payload.Certificate))
+                {
+                    break;
+                }
+
+                ProgressUpdate?.Invoke(EnrollmentProgress.CertificatePending, "Waiting for certificate to be issued");
                 await Task.Delay(5000, state.CancellationToken);
 
 
@@ -291,8 +303,23 @@ namespace ACMESharp.Enrollment
 
             }
 
+            ProgressUpdate?.Invoke(EnrollmentProgress.CertificateIssued, state.OrderDetails.Payload.Certificate);
             var certBytes = await state.Client.GetOrderCertificateAsync(state.OrderDetails, state.CancellationToken);
+
             return state.Csr.Complete(certBytes);
         }
+    }
+
+    public enum EnrollmentProgress
+    {
+        AccountResolved,
+        OrderCreated,
+        OrderRefreshed,
+        PendingAuthorization,
+        AuthorizationFailure,
+        AuthorizationComplete,
+        OrderFinalized,
+        CertificatePending,
+        CertificateIssued,
     }
 }

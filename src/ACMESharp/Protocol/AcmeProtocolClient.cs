@@ -9,10 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ACMESharp.Crypto;
 using ACMESharp.Crypto.JOSE;
-using ACMESharp.Logging;
 using ACMESharp.Protocol.Messages;
 using ACMESharp.Protocol.Resources;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -34,7 +32,6 @@ namespace ACMESharp.Protocol
 
         private bool _disposeHttpClient;
         private HttpClient _http;
-        private ILogger _log;
 
         /// <summary>
         /// To implement Let's Encrypt protocol change per RFC 8555,
@@ -46,31 +43,28 @@ namespace ACMESharp.Protocol
         public AcmeProtocolClient(HttpClient http, ServiceDirectory dir = null,
                 AccountDetails acct = null, IJwsTool signer = null,
                 bool disposeHttpClient = false,
-                ILogger logger = null,
                 bool usePostAsGet = false)
         {
-            Init(http, dir, acct, signer, logger);
+            Init(http, dir, acct, signer);
             _disposeHttpClient = disposeHttpClient;
             _usePostAsGet = usePostAsGet;
         }
 
         public AcmeProtocolClient(Uri baseUri, ServiceDirectory dir = null,
                 AccountDetails acct = null, IJwsTool signer = null,
-                ILogger logger = null,
                 bool usePostAsGet = false)
         {
             var http = new HttpClient
             {
                 BaseAddress = baseUri,
             };
-            Init(http, dir, acct, signer, logger);
+            Init(http, dir, acct, signer);
             _disposeHttpClient = true;
             _usePostAsGet = usePostAsGet;
         }
 
         private void Init(HttpClient http, ServiceDirectory dir,
-                AccountDetails acct, IJwsTool signer,
-                ILogger logger)
+                AccountDetails acct, IJwsTool signer)
         {
             _http = http;
             Directory = dir ?? new ServiceDirectory();
@@ -78,9 +72,6 @@ namespace ACMESharp.Protocol
             Account = acct;
 
             Signer = signer ?? ResolveDefaultSigner();
-
-            _log = logger ?? NullLogger.Instance;
-            _log.LogInformation("ACME client initialized");
         }
 
         private IJwsTool ResolveDefaultSigner()

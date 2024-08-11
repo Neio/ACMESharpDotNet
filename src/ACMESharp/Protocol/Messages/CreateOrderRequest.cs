@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations;
 using ACMESharp.Crypto.JOSE;
 using ACMESharp.Protocol.Resources;
 using Newtonsoft.Json;
@@ -11,7 +11,7 @@ namespace ACMESharp.Protocol.Messages
     public class CreateOrderRequest
     {
         [JsonProperty("identifiers", Required = Required.Always)]
-        [Required, MinLength(1)]
+        //[Required, MinLength(1)]
         public Identifier[] Identifiers { get; set; }
 
         [JsonProperty("notBefore", NullValueHandling = NullValueHandling.Ignore)]
