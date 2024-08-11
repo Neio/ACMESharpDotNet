@@ -17,9 +17,9 @@ namespace ACMEWeb
         private readonly ILogger<AcmeHostedService> _logger;
         private readonly IStorage _storage;
         private readonly IHostApplicationLifetime _lifetime;
-        public AcmeHostedService(IHostApplicationLifetime lifetime, IChallengeProvider challeneProvider, IStorage storage, ILogger<AcmeHostedService> logger, IOptions<AcmeOptions> options)
+        public AcmeHostedService(IHostApplicationLifetime lifetime, IChallengeProvider challeneProvider, IStorage storage, CertificateEnrollment certificateEnrollment, ILogger<AcmeHostedService> logger, IOptions<AcmeOptions> options)
         {
-            _certificateEnrollment = new CertificateEnrollment(storage, challeneProvider, logger);
+            _certificateEnrollment = certificateEnrollment;
             _acmeOptions = options.Value;
             _logger = logger;
             _storage = storage;
@@ -30,6 +30,10 @@ namespace ACMEWeb
         {
             try
             {
+                _certificateEnrollment.ProgressUpdate = new Action<EnrollmentProgress, string>((progress, message) =>
+                {
+                    _logger.LogInformation("Progress: {0} - {1}", progress, message);
+                });
                 // delay for 5 seconds to allow the web server to start
                 await Task.Delay(5 * 1000, stoppingToken);
 
@@ -58,7 +62,8 @@ namespace ACMEWeb
                 }
                 else
                 {
-                    csr = new ECDsaCsrProvider(HashAlgorithmName.SHA256, _acmeOptions.CertificateKeySize ?? AcmeOptions.DefaultEcKeySize);
+                    // ECDSA key size is related to hashing
+                    csr = new ECDsaCsrProvider(HashAlgorithmName.SHA256, 256);
                 }
 
                 var certificates = await _certificateEnrollment.Enroll(_acmeOptions.DnsNames.ToArray(),
@@ -83,6 +88,9 @@ namespace ACMEWeb
                 string privKeyPem = key.ExportPkcs8PrivateKeyPem();
                 _logger.LogInformation("Private key PEM: {0}", privKeyPem);
                 _storage.Save("." + _acmeOptions.DnsNames.First() + ".key", privKeyPem);
+
+                var pkcs12Bytes = certificates.Export(X509ContentType.Pkcs12);
+                _storage.Save("." + _acmeOptions.DnsNames.First() + ".pfx", pkcs12Bytes);
             }
             catch (Exception ex)
             {

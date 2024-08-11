@@ -8,7 +8,7 @@ namespace ACMESharp.Enrollment
         public const string Deactivated = "deactivated";
         public const string Revoked = "revoked";
         public const string Expired = "expired";
-        /**
+        /*
          *                        pending --------------------+
                                      |                        |
                    Challenge failure |                        |

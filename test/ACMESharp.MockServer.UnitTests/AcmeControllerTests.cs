@@ -398,7 +398,9 @@ namespace ACMESharp.MockServer.UnitTests
 
 
         [TestMethod]
-        public async Task RevokeCertificate()
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task RevokeCertificate(bool revokeWithCertKeyPair)
         {
             using (var http = _server.CreateClient())
             {
@@ -461,7 +463,23 @@ namespace ACMESharp.MockServer.UnitTests
                     var cert = new X509Certificate2(certPemBytes);
                     var certDerBytes = cert.Export(X509ContentType.Cert);
 
-                    await acme.RevokeCertificateAsync(certDerBytes);
+                    if (revokeWithCertKeyPair)
+                    {
+                        // get cert with private key
+                        var pkiCert = PkiCertificate.From(cert);
+                        var exportedPkcs12= pkiCert.Export(PkiArchiveFormat.Pkcs12, privateKey: kpr.PrivateKey, null);
+                        using (var certWithPrivateKey = new X509Certificate2(exportedPkcs12))
+                        {
+                            await new ACMESharp.Enrollment.CertificateRevocation().Revoke(certWithPrivateKey, 
+                                new Uri("http://localhost/directory"), 
+                                httpClient: http);
+                        }
+                        
+                    }
+                    else
+                    {
+                        await acme.RevokeCertificateAsync(certDerBytes);
+                    }
                 }
             }
         }

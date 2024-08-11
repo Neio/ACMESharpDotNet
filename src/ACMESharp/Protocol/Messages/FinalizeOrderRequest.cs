@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations;
 using ACMESharp.Crypto.JOSE;
 using ACMESharp.Protocol.Resources;
 using Newtonsoft.Json;
@@ -11,7 +11,7 @@ namespace ACMESharp.Protocol.Messages
     public class FinalizeOrderRequest
     {
         [JsonProperty("csr", Required = Required.Always)]
-        [Required]
+        //[Required]
         public string Csr { get; set; }
     }
 }

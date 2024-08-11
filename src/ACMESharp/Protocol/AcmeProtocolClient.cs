@@ -9,10 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ACMESharp.Crypto;
 using ACMESharp.Crypto.JOSE;
-using ACMESharp.Logging;
 using ACMESharp.Protocol.Messages;
 using ACMESharp.Protocol.Resources;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -34,7 +32,6 @@ namespace ACMESharp.Protocol
 
         private bool _disposeHttpClient;
         private HttpClient _http;
-        private ILogger _log;
 
         /// <summary>
         /// To implement Let's Encrypt protocol change per RFC 8555,
@@ -46,31 +43,28 @@ namespace ACMESharp.Protocol
         public AcmeProtocolClient(HttpClient http, ServiceDirectory dir = null,
                 AccountDetails acct = null, IJwsTool signer = null,
                 bool disposeHttpClient = false,
-                ILogger logger = null,
                 bool usePostAsGet = false)
         {
-            Init(http, dir, acct, signer, logger);
+            Init(http, dir, acct, signer);
             _disposeHttpClient = disposeHttpClient;
             _usePostAsGet = usePostAsGet;
         }
 
         public AcmeProtocolClient(Uri baseUri, ServiceDirectory dir = null,
                 AccountDetails acct = null, IJwsTool signer = null,
-                ILogger logger = null,
                 bool usePostAsGet = false)
         {
             var http = new HttpClient
             {
                 BaseAddress = baseUri,
             };
-            Init(http, dir, acct, signer, logger);
+            Init(http, dir, acct, signer);
             _disposeHttpClient = true;
             _usePostAsGet = usePostAsGet;
         }
 
         private void Init(HttpClient http, ServiceDirectory dir,
-                AccountDetails acct, IJwsTool signer,
-                ILogger logger)
+                AccountDetails acct, IJwsTool signer)
         {
             _http = http;
             Directory = dir ?? new ServiceDirectory();
@@ -78,9 +72,6 @@ namespace ACMESharp.Protocol
             Account = acct;
 
             Signer = signer ?? ResolveDefaultSigner();
-
-            _log = logger ?? NullLogger.Instance;
-            _log.LogInformation("ACME client initialized");
         }
 
         private IJwsTool ResolveDefaultSigner()
@@ -678,6 +669,7 @@ namespace ACMESharp.Protocol
         public async Task RevokeCertificateAsync(
             byte[] derEncodedCertificate,
             RevokeReason reason = RevokeReason.Unspecified,
+            IJwsTool certKeyPairSigner = null,
             CancellationToken cancel = default(CancellationToken))
         {
             var message = new RevokeCertificateRequest
@@ -685,12 +677,15 @@ namespace ACMESharp.Protocol
                 Certificate = CryptoHelper.Base64.UrlEncode(derEncodedCertificate),
                 Reason = reason
             };
+
             // If OK is returned, we're all done. Otherwise general 
             // exception handling will kick in
             var resp = await SendAcmeAsync(
                     new Uri(_http.BaseAddress, Directory.RevokeCert),
                     method: HttpMethod.Post,
                     message: message,
+                    includePublicKey: certKeyPairSigner != null,
+                    customSigner: certKeyPairSigner,
                     expectedStatuses: new[] { HttpStatusCode.OK },
                     cancel: cancel);
         }
@@ -752,6 +747,7 @@ namespace ACMESharp.Protocol
         ///         response, defaults to <c>false</c></param>
         /// <param name="skipSigning">If true, will not sign the request with the associated
         ///         Account key, defaults to <c>false</c></param>
+        /// <param name="customSigner">If provided, would be used for signing the payload </param>
         /// <param name="includePublicKey">If true, will include the Account's public key in the
         ///         payload signature instead of the Account's key ID as prescribed with certain
         ///         ACME protocol messages, defaults to <c>false</c></param>
@@ -765,6 +761,7 @@ namespace ACMESharp.Protocol
             HttpStatusCode[] expectedStatuses = null,
             bool skipNonce = false, bool skipSigning = false, bool includePublicKey = false,
             CancellationToken cancel = default(CancellationToken),
+            IJwsTool customSigner = null,
             [System.Runtime.CompilerServices.CallerMemberName]string opName = "")
         {
             if (method == null)
@@ -780,7 +777,7 @@ namespace ACMESharp.Protocol
                 if (skipSigning)
                     payload = ResolvePayload(message);
                 else
-                    payload = ComputeAcmeSigned(message, uri.ToString(),
+                    payload = ComputeAcmeSigned(message, uri.ToString(), signer: customSigner,
                             includePublicKey: includePublicKey);
                 requ.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/jose+json");
                 requ.Content.Headers.ContentType = Constants.JsonContentTypeHeaderValue;
@@ -825,7 +822,7 @@ namespace ACMESharp.Protocol
             return await Deserialize<T>(await SendAcmeAsync(
                     uri, method, message, expectedStatuses,
                     skipNonce, skipSigning, includePublicKey,
-                    cancel, opName));
+                    cancel, null, opName));
         }
 
         async Task<T> Deserialize<T>(HttpResponseMessage resp)

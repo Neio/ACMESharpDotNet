@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+
 using Newtonsoft.Json;
 
 namespace ACMESharp.Protocol.Resources

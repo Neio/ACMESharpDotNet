@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace ACMESharp.Protocol.Resources
@@ -9,18 +9,18 @@ namespace ACMESharp.Protocol.Resources
     public class Authorization
     {
         [JsonProperty("identifier", Required = Required.Always)]
-        [Required]
+        //[Required]
         public Identifier Identifier { get; set; }
 
         [JsonProperty("status", Required = Required.Always)]
-        [Required]
+        //[Required]
         public string Status { get; set; }
 
         [JsonProperty("expires")]
         public string Expires { get; set; }
 
         [JsonProperty("challenges")]
-        [Required]
+        //[Required]
         public Challenge[] Challenges { get; set; }
 
         [JsonProperty("wildcard")]

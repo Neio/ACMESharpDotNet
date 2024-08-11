@@ -16,6 +16,7 @@ using ACMESharp.Protocol.Messages;
 using ACMESharp.Protocol.Resources;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using PKISharp.SimplePKI;
 
@@ -150,7 +151,7 @@ namespace ACMESharp.MockServer.Controllers
             _repo.SaveAccount(dbAcct);
 
             GenerateNonce();
-            Response.Headers.Add(
+            Response.Headers.Append(
                     "Location",
                     dbAcct.Details.Kid);
 
@@ -446,14 +447,30 @@ namespace ACMESharp.MockServer.Controllers
 
             var requ = ExtractPayload<RevokeCertificateRequest>(signedPayload);
 
-            var acct = _repo.GetAccountByKid(ph.Kid);
-            if (acct == null)
-                throw new Exception("could not resolve account");
+            bool signedWithPrivateKey = false;
+            if (ph.Jwk != null)
+            {
+                ValidateProtectedHeader(signedPayload, JsonConvert.SerializeObject(ph.Jwk));
+                signedWithPrivateKey = true;
+            }
+            else
+            {
+                var acct = _repo.GetAccountByKid(ph.Kid);
+                if (acct == null)
+                    throw new Exception("could not resolve account");
 
-            ValidateAccount(acct, signedPayload);
+                ValidateAccount(acct, signedPayload);
+            }
+            
 
             var derEncodedCertificate = CryptoHelper.Base64.UrlDecode(requ.Certificate);
             var xcrt = new X509Certificate2(derEncodedCertificate);
+
+            if (signedWithPrivateKey)
+            {
+                // Validate signed with the private key corresponding to the public key in the certificate.
+                ValidateProtectedHeader(signedPayload, xcrt);
+            }
 
             var dbCert = _repo.GetCertificateByNative(derEncodedCertificate);
             if (dbCert == null)
@@ -646,7 +663,7 @@ namespace ACMESharp.MockServer.Controllers
 
         void GenerateNonce()
         {
-            Response.Headers.Add(
+            Response.Headers.Append(
                     Constants.ReplayNonceHeaderName,
                     _nonceMgr.GenerateNonce());
         }
@@ -663,10 +680,14 @@ namespace ACMESharp.MockServer.Controllers
                 throw new Exception("Bad Nonce");
         }
 
-        void ValidateAccount(DbAccount acct, JwsSignedPayload signedPayload)
+        private void ValidateAccount(DbAccount acct, JwsSignedPayload signedPayload)
+        {
+            ValidateProtectedHeader(signedPayload, acct.Jwk);
+        }
+
+        private void ValidateProtectedHeader(JwsSignedPayload signedPayload, string jwk)
         {
             var ph = ExtractProtectedHeader(signedPayload);
-            var jwk = JsonConvert.DeserializeObject<Dictionary<string, string>>(acct.Jwk);
 
             if (string.IsNullOrEmpty(ph.Alg))
                 throw new Exception("invalid JWS header, missing 'alg'");
@@ -680,27 +701,27 @@ namespace ACMESharp.MockServer.Controllers
             {
                 case "RS256":
                     tool = new RSJwsTool { HashSize = 256 };
-                    ((RSJwsTool)tool).ImportJwk(acct.Jwk);
+                    ((RSJwsTool)tool).ImportJwk(jwk);
                     break;
                 case "RS384":
                     tool = new RSJwsTool { HashSize = 384 };
-                    ((RSJwsTool)tool).ImportJwk(acct.Jwk);
+                    ((RSJwsTool)tool).ImportJwk(jwk);
                     break;
                 case "RS512":
                     tool = new RSJwsTool { HashSize = 512 };
-                    ((RSJwsTool)tool).ImportJwk(acct.Jwk);
+                    ((RSJwsTool)tool).ImportJwk(jwk);
                     break;
                 case "ES256":
                     tool = new ESJwsTool { HashSize = 256 };
-                    ((ESJwsTool)tool).ImportJwk(acct.Jwk);
+                    ((ESJwsTool)tool).ImportJwk(jwk);
                     break;
                 case "ES384":
                     tool = new ESJwsTool { HashSize = 384 };
-                    ((ESJwsTool)tool).ImportJwk(acct.Jwk);
+                    ((ESJwsTool)tool).ImportJwk(jwk);
                     break;
                 case "ES512":
                     tool = new ESJwsTool { HashSize = 512 };
-                    ((ESJwsTool)tool).ImportJwk(acct.Jwk);
+                    ((ESJwsTool)tool).ImportJwk(jwk);
                     break;
                 default:
                     throw new Exception("unknown or unsupported signature algorithm");
@@ -715,6 +736,22 @@ namespace ACMESharp.MockServer.Controllers
             
             if (!tool.Verify(sigInputBytes, sig))
                 throw new Exception("account signature failure");
+        }
+
+        private void ValidateProtectedHeader(JwsSignedPayload signedPayload, X509Certificate2 cert)
+        {
+
+            IJwsTool tool = new CertJwsTool(cert);
+
+            var sig = CryptoHelper.Base64.UrlDecode(signedPayload.Signature);
+            var pld = CryptoHelper.Base64.UrlDecode(signedPayload.Payload);
+            var prt = CryptoHelper.Base64.UrlDecode(signedPayload.Protected);
+
+            var sigInput = $"{signedPayload.Protected}.{signedPayload.Payload}";
+            var sigInputBytes = Encoding.ASCII.GetBytes(sigInput);
+            
+            if (!tool.Verify(sigInputBytes, sig))
+                throw new Exception("payload signature failure");
         }
 
         string ResolveCaCertPem()

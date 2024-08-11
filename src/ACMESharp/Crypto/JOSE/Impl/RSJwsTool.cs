@@ -12,8 +12,8 @@ namespace ACMESharp.Crypto.JOSE.Impl
     /// </summary>
     public class RSJwsTool : IJwsTool
     {
-        private HashAlgorithm _sha;
-        private RSACryptoServiceProvider _rsa;
+        private HashAlgorithmName _sha;
+        private RSA _rsa;
         private RSJwk _jwk;
 
         /// <summary>
@@ -30,36 +30,44 @@ namespace ACMESharp.Crypto.JOSE.Impl
         public int KeySize { get; set; } = 2048;
 
         public string JwsAlg => $"RS{HashSize}";
+        private bool _shouldDispose;
 
         public void Init()
         {
-            switch (HashSize)
-            {
-                case 256:
-                    _sha = SHA256.Create();
-                    break;
-                case 384:
-                    _sha = SHA384.Create();
-                    break;
-                case 512:
-                    _sha = SHA512.Create();
-                    break;
-                default:
-                    throw new System.InvalidOperationException("illegal SHA2 hash size");
-            }
+            InitHash();
 
             if (KeySize < 2048 || KeySize > 4096)
                 throw new InvalidOperationException("illegal RSA key bit length");
 
+            _shouldDispose = true;
             _rsa = new RSACryptoServiceProvider(KeySize);
+        }
+
+        private void InitHash()
+        {
+            switch (HashSize)
+            {
+                case 256:
+                    _sha = HashAlgorithmName.SHA256;
+                    break;
+                case 384:
+                    _sha = HashAlgorithmName.SHA384;
+                    break;
+                case 512:
+                    _sha = HashAlgorithmName.SHA512;
+                    break;
+                default:
+                    throw new System.InvalidOperationException("illegal SHA2 hash size");
+            }
         }
 
         public void Dispose()
         {
-            _rsa?.Dispose();
-            _rsa = null;
-            _sha?.Dispose();
-            _sha = null;
+            if (_shouldDispose)
+            {
+                _rsa?.Dispose();
+                _rsa = null;
+            }
         }
 
         public string Export()
@@ -116,14 +124,36 @@ namespace ACMESharp.Crypto.JOSE.Impl
             _rsa.ImportParameters(keyParams);
         }
 
+        internal void Import(RSA rsa)
+        {
+            KeySize = rsa.KeySize;
+            if (KeySize == 2048)
+                HashSize = 256;
+            else if (KeySize > 2048 && KeySize < 4096)
+                HashSize = 384;
+            else
+                HashSize = 512;
+            /*
+                General guide for RSA key lengths and their typical hash function pairings:
+
+                RSA 2048-bit: Commonly used with SHA-256 (256-bit hash) or SHA-384 (384-bit hash).
+                RSA 3072-bit: Used with SHA-384 (384-bit hash) or SHA-512 (512-bit hash) for higher security.
+                RSA 4096-bit: Used with SHA-512 (512-bit hash) for very high security.
+            */
+
+            InitHash();
+            _shouldDispose = false;
+            _rsa = rsa;
+        }
+
         public byte[] Sign(byte[] raw)
         {
-            return _rsa.SignData(raw, _sha);
+            return _rsa.SignData(raw, _sha, RSASignaturePadding.Pkcs1);
         }
 
         public bool Verify(byte[] raw, byte[] sig)
         {
-            return _rsa.VerifyData(raw, _sha, sig);
+            return _rsa.VerifyData(raw, sig, _sha, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
         }
 
         // As per RFC 7638 Section 3, these are the *required* elements of the

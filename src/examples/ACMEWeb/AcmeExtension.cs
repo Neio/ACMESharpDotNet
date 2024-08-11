@@ -12,6 +12,7 @@ namespace ACMEWeb
             
             services.AddSingleton<IStorage, FileStorage>();
             services.AddSingleton<IChallengeProvider, HttpChallaneProvider>();
+            services.AddTransient<CertificateEnrollment>();
 
             return services;
         }

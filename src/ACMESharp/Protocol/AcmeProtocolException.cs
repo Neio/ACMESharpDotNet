@@ -25,11 +25,13 @@ namespace ACMESharp.Protocol
             Init(problem);
         }
 
+#if !NET8_0_OR_GREATER
         protected AcmeProtocolException(SerializationInfo info, StreamingContext context, Problem problem = null)
             : base(info, context)
         {
             Init(problem);
         }
+#endif
 
         private void Init(Problem problem = null)
         {

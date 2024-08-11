@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations;
 using ACMESharp.Protocol.Resources;
 using Newtonsoft.Json;
 
@@ -11,7 +11,7 @@ namespace ACMESharp.Protocol.Resources
     public class Order
     {
         [JsonProperty("status")]
-        [Required]
+        //[Required]
         public string Status { get; set; }
 
         [JsonProperty("expires")]
@@ -24,15 +24,15 @@ namespace ACMESharp.Protocol.Resources
         public string NotAfter { get; set; }
 
         [JsonProperty("identifiers")]
-        [Required, MinLength(1)]
+        //[Required, MinLength(1)]
         public Identifier[] Identifiers { get; set; }
 
         [JsonProperty("authorizations")]
-        [Required, MinLength(1)]
+        //[Required, MinLength(1)]
         public string[] Authorizations { get; set; }
 
         [JsonProperty("finalize")]
-        [Required]
+        //[Required]
         public string Finalize { get; set; }
 
         [JsonProperty("certificate", NullValueHandling = NullValueHandling.Ignore)]

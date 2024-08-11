@@ -1,3 +1,4 @@
+/*
 using System;
 using Microsoft.Extensions.Logging;
 
@@ -28,3 +29,4 @@ namespace ACMESharp.Logging
         }
     }
 }
+*/
